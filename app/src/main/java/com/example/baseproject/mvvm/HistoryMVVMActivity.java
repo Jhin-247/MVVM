@@ -1,9 +1,5 @@
 package com.example.baseproject.mvvm;
 
-import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
-
-import android.app.AppOpsManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -15,13 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.baseproject.R;
 import com.example.baseproject.databinding.ActivityHistoryMvvmBinding;
-import com.example.baseproject.mvvm.service.AppService;
 import com.example.baseproject.mvvm.viewmodel.HistoryViewModel;
+import com.example.baseproject.view.LoadingDialog;
 
 public class HistoryMVVMActivity extends AppCompatActivity {
 
     private ActivityHistoryMvvmBinding mBinding;
     private AppInfoAdapter mAdapter;
+
+    private LoadingDialog mLoadingDialog;
+
+    private HistoryViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,36 +30,39 @@ public class HistoryMVVMActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_history_mvvm);
-        checkPermission();
+        initData();
+
+
+        mBinding.btnShow.setOnClickListener(v -> {
+            checkPermission();
+        });
+
+    }
+
+    private void initData() {
+        mViewModel = new HistoryViewModel(this);
+        mAdapter = new AppInfoAdapter();
+        mLoadingDialog = new LoadingDialog(this);
     }
 
     private void checkPermission() {
-        AppOpsManager appOpsManagerCompat = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
-        int mode = appOpsManagerCompat.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), getPackageName());
-        boolean granted = mode == AppOpsManager.MODE_ALLOWED;
-
-        Intent intent = new Intent(this, AppService.class);
-        startService(intent);
-
+        boolean granted = mViewModel.checkPermission();
         if (granted) {
-            mBinding.btnShow.setOnClickListener(v -> {
-                mBinding.loadingView.show();
-                initView();
-            });
+            mLoadingDialog.show();
+            mViewModel.startService();
+            initView();
         } else {
             startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
         }
     }
 
     private void initView() {
-        mAdapter = new AppInfoAdapter();
-        HistoryViewModel mViewModel = new HistoryViewModel(this);
         mBinding.rcvAppInfo.setAdapter(mAdapter);
         mBinding.rcvAppInfo.setLayoutManager(new LinearLayoutManager(this));
         mViewModel.getMutableAppList().observe(this, appList -> {
             mAdapter.setMaxDuration(mViewModel.getMaxUseDuration());
             mAdapter.setData(appList);
-            mBinding.loadingView.hide();
+            mLoadingDialog.cancel();
         });
     }
 

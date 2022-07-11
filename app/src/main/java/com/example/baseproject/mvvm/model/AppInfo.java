@@ -32,7 +32,7 @@ public class AppInfo {
         int minutes = (int) (mUsedDuration % (1000 * 60 * 60)) / (1000 * 60);
         int seconds = (int) ((mUsedDuration % (1000 * 60 * 60)) % (1000 * 60) / 1000);
         if (hours > 0) {
-            finalTimerString = hours + ":";
+            finalTimerString = hours + " hours ";
         }
         if (seconds < 10) {
             secondsString = "0" + seconds;
@@ -41,9 +41,9 @@ public class AppInfo {
         }
 
         if (minutes < 10) {
-            finalTimerString = finalTimerString + "0" + minutes + ":" + secondsString;
+            finalTimerString = finalTimerString + "0" + minutes + " minutes " + secondsString + " seconds";
         } else {
-            finalTimerString = finalTimerString + minutes + ":" + secondsString;
+            finalTimerString = finalTimerString + minutes + " minutes " + secondsString + "seconds";
         }
         mTotalTimeString = finalTimerString;
     }

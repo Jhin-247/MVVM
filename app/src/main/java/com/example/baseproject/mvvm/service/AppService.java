@@ -33,10 +33,7 @@ public class AppService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("AppService", "onStartCommand: " + (intent == null ? "intent null" : (intent.getAction() == null ? "action null" : "how the fuck")));
-
         mIsAlive = true;
-
         if (intent != null && intent.hasExtra("ACTION")) {
             stopSelf();
             stopForeground(true);
@@ -52,7 +49,6 @@ public class AppService extends Service {
                 }
             });
         }
-
         return START_NOT_STICKY;
     }
 
@@ -115,7 +111,6 @@ public class AppService extends Service {
                 .setCustomBigContentView(mRemoteView)
                 .build();
         startForeground(1, mNotification);
-
     }
 
     @Nullable

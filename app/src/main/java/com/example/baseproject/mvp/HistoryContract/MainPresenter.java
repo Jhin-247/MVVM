@@ -1,4 +1,4 @@
-package com.example.baseproject.mvvm.viewmodel;
+package com.example.baseproject.mvp.HistoryContract;
 
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
 
@@ -6,58 +6,48 @@ import android.app.AppOpsManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.ArrayMap;
 
-import androidx.databinding.BaseObservable;
-import androidx.lifecycle.MutableLiveData;
-
 import com.example.baseproject.mvvm.model.AppInfo;
-import com.example.baseproject.mvvm.service.AppService;
 import com.example.baseproject.mvvm.util.AppUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class HistoryViewModel extends BaseObservable {
+public class MainPresenter implements MainContract.Presenter {
 
-    private final MutableLiveData<List<AppInfo>> mAppInfoMutableList;
+    private final MainContract.View mView;
     private final Context mContext;
-    private long mMaxUseDuration;
 
-    public HistoryViewModel(Context mContext) {
+    public MainPresenter(MainContract.View mView, Context mContext) {
+        this.mView = mView;
         this.mContext = mContext;
-        mAppInfoMutableList = new MutableLiveData<>();
-        initData();
     }
 
-    public MutableLiveData<List<AppInfo>> getMutableAppList() {
-        return mAppInfoMutableList;
-    }
-
-    public long getMaxUseDuration() {
-        return mMaxUseDuration;
-    }
-
-    private boolean isAppInfoAvailable(UsageStats usageStats) {
-        try {
-            mContext.getPackageManager().getApplicationInfo(usageStats.getPackageName(), 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
+    @Override
+    public void checkPermission(String permission) {
+        AppOpsManager appOpsManagerCompat = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
+        int mode = appOpsManagerCompat.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), mContext.getPackageName());
+        boolean granted = mode == AppOpsManager.MODE_ALLOWED;
+        if (granted){
+            mView.onHasPermission();
+        } else {
+            mView.requestPermission(permission);
         }
+
     }
 
-    private void initData() {
+    @Override
+    public void queryApp() {
         HandlerThread mHandlerThread = new HandlerThread("getAppInfoThread");
         mHandlerThread.start();
         Handler handler = new Handler(mHandlerThread.getLooper());
         handler.post(() -> {
-            mMaxUseDuration = 0;
+            long mMaxUseDuration = 0;
             List<AppInfo> mAppInfoList = new ArrayList<>();
             ArrayMap<String, UsageStats> map = new ArrayMap<>();
             UsageStatsManager usageStatsManager = (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);// Context.USAGE_STATS_SERVICE);
@@ -95,19 +85,16 @@ public class HistoryViewModel extends BaseObservable {
 
             Collections.sort(mAppInfoList, (o1, o2) -> Long.compare(o2.getUsedDuration(), o1.getUsedDuration()));
             Handler mMainHandler = new Handler(mContext.getMainLooper());
-            mMainHandler.post(() -> mAppInfoMutableList.setValue(mAppInfoList));
+            mMainHandler.post(() -> mView.onQueryAppComplete(mAppInfoList));
         });
-
     }
 
-    public boolean checkPermission() {
-        AppOpsManager appOpsManagerCompat = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
-        int mode = appOpsManagerCompat.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), mContext.getPackageName());
-        return mode == AppOpsManager.MODE_ALLOWED;
-    }
-
-    public void startService() {
-        Intent intent = new Intent(mContext, AppService.class);
-        mContext.startService(intent);
+    private boolean isAppInfoAvailable(UsageStats usageStats) {
+        try {
+            mContext.getPackageManager().getApplicationInfo(usageStats.getPackageName(), 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 }
