@@ -20,7 +20,13 @@ public class AppInfoAdapter extends RecyclerView.Adapter<AppInfoAdapter.AppInfoH
 
     private List<AppInfo> mAppList;
 
+    private long mMaxDuration;
+
     public AppInfoAdapter() {
+    }
+
+    public void setMaxDuration(long mMaxDuration){
+        this.mMaxDuration = mMaxDuration;
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -32,21 +38,22 @@ public class AppInfoAdapter extends RecyclerView.Adapter<AppInfoAdapter.AppInfoH
     @NonNull
     @Override
     public AppInfoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (layoutInflater == null) {
-            layoutInflater = LayoutInflater.from(parent.getContext());
+            if (layoutInflater == null) {
+                layoutInflater = LayoutInflater.from(parent.getContext());
+            }
+            ItemAppInfoBinding mBinding = DataBindingUtil.inflate(layoutInflater, R.layout.item_app_info, parent, false);
+            return new AppInfoHolder(mBinding);
         }
-        ItemAppInfoBinding mBinding = DataBindingUtil.inflate(layoutInflater, R.layout.item_app_info, parent, false);
-        return new AppInfoHolder(mBinding);
-    }
 
-    @Override
-    public void onBindViewHolder(@NonNull AppInfoHolder holder, int position) {
-        holder.bind(mAppList.get(position));
-    }
+        @Override
+        public void onBindViewHolder(@NonNull AppInfoHolder holder, int position) {
+            mAppList.get(position).setRatio(mMaxDuration);
+            holder.bind(mAppList.get(position));
+        }
 
-    @Override
-    public int getItemCount() {
-        return mAppList == null ? 0 : mAppList.size();
+        @Override
+        public int getItemCount() {
+            return mAppList == null ? 0 : mAppList.size();
     }
 
     public static class AppInfoHolder extends RecyclerView.ViewHolder {

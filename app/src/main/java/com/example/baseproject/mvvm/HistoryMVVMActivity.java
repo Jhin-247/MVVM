@@ -11,20 +11,24 @@ import android.provider.Settings;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.baseproject.R;
 import com.example.baseproject.databinding.ActivityHistoryMvvmBinding;
+import com.example.baseproject.mvvm.service.AppService;
 import com.example.baseproject.mvvm.viewmodel.HistoryViewModel;
 
 public class HistoryMVVMActivity extends AppCompatActivity {
 
     private ActivityHistoryMvvmBinding mBinding;
     private AppInfoAdapter mAdapter;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_history_mvvm);
         checkPermission();
     }
@@ -33,6 +37,9 @@ public class HistoryMVVMActivity extends AppCompatActivity {
         AppOpsManager appOpsManagerCompat = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
         int mode = appOpsManagerCompat.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), getPackageName());
         boolean granted = mode == AppOpsManager.MODE_ALLOWED;
+
+        Intent intent = new Intent(this, AppService.class);
+        startService(intent);
 
         if (granted) {
             initView();
@@ -43,14 +50,19 @@ public class HistoryMVVMActivity extends AppCompatActivity {
 
     private void initView() {
         mAdapter = new AppInfoAdapter();
-        HistoryViewModel mViewModel = new ViewModelProvider(this, new HistoryViewModel.MyViewModelFactory(this.getApplication())).get(HistoryViewModel.class);
+//        HistoryViewModel mViewModel = new ViewModelProvider(this, new HistoryViewModel.MyViewModelFactory(this.getApplication())).get(HistoryViewModel.class);
+
+        HistoryViewModel mViewModel = new HistoryViewModel(this);
         mBinding.setViewModel(mViewModel);
         mBinding.executePendingBindings();
 
         mBinding.rcvAppInfo.setAdapter(mAdapter);
 
         mBinding.rcvAppInfo.setLayoutManager(new LinearLayoutManager(this));
-        mViewModel.getMutableAppList().observe(this, appList -> mAdapter.setData(appList));
+        mViewModel.getMutableAppList().observe(this, appList -> {
+            mAdapter.setMaxDuration(mViewModel.getMaxUseDuration());
+            mAdapter.setData(appList);
+        });
     }
 
 }
