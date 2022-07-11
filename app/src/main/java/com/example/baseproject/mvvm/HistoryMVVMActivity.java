@@ -42,7 +42,10 @@ public class HistoryMVVMActivity extends AppCompatActivity {
         startService(intent);
 
         if (granted) {
-            initView();
+            mBinding.btnShow.setOnClickListener(v -> {
+                mBinding.loadingView.show();
+                initView();
+            });
         } else {
             startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
         }
@@ -50,18 +53,13 @@ public class HistoryMVVMActivity extends AppCompatActivity {
 
     private void initView() {
         mAdapter = new AppInfoAdapter();
-//        HistoryViewModel mViewModel = new ViewModelProvider(this, new HistoryViewModel.MyViewModelFactory(this.getApplication())).get(HistoryViewModel.class);
-
         HistoryViewModel mViewModel = new HistoryViewModel(this);
-        mBinding.setViewModel(mViewModel);
-        mBinding.executePendingBindings();
-
         mBinding.rcvAppInfo.setAdapter(mAdapter);
-
         mBinding.rcvAppInfo.setLayoutManager(new LinearLayoutManager(this));
         mViewModel.getMutableAppList().observe(this, appList -> {
             mAdapter.setMaxDuration(mViewModel.getMaxUseDuration());
             mAdapter.setData(appList);
+            mBinding.loadingView.hide();
         });
     }
 
