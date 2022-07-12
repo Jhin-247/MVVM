@@ -26,16 +26,15 @@
         <activity
             android:name=".mvvm.HistoryMVVMActivity"
             android:exported="true">
-
-        </activity>
-        <activity
-            android:name=".mvp.HistoryMVPActivity"
-            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".mvp.HistoryMVPActivity"
+            android:exported="true">
         </activity>
 
         <service android:name=".mvvm.service.AppService" />
