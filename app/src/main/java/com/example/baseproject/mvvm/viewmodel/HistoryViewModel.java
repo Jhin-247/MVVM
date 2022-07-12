@@ -62,7 +62,7 @@ public class HistoryViewModel extends BaseObservable {
             ArrayMap<String, UsageStats> map = new ArrayMap<>();
             UsageStatsManager usageStatsManager = (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);// Context.USAGE_STATS_SERVICE);
             long mCurrentTime = System.currentTimeMillis();
-            long mStartTime = 0;
+            long mStartTime = mCurrentTime - 24 * 60 * 60 * 1000;
             List<UsageStats> mUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, mStartTime, mCurrentTime);
             for (UsageStats usageStats : mUsageStats) {
                 if (!isAppInfoAvailable(usageStats)) {
