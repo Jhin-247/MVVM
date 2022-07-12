@@ -25,7 +25,7 @@ public class AppInfo {
         this.mTotalTimeString = mTotalTimeString;
     }
 
-    public void getTotalUsedTime() {
+    private void getTotalUsedTime() {
         String finalTimerString = "";
         String secondsString = "";
         int hours = (int) (mUsedDuration / (1000 * 60 * 60));
@@ -58,10 +58,6 @@ public class AppInfo {
 
     public void setUsedDuration(long mUsedDuration) {
         this.mUsedDuration = mUsedDuration;
-    }
-
-    public String getUsedDurationAsString() {
-        return String.valueOf(mProgressRatio);
     }
 
     public void setRatio(long maxDuration) {

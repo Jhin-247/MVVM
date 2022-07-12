@@ -7,13 +7,13 @@ import java.util.List;
 public interface MainContract {
     interface View{
         void onHasPermission();
-        void requestPermission(String permission);
+        void requestPermission();
 
-        void onQueryAppComplete(List<AppInfo> appInfoList);
+        void onQueryAppComplete(List<AppInfo> appInfoList, long mMaxDuration);
     }
 
     interface Presenter{
-        void checkPermission(String permission);
+        void checkPermission();
 
         void queryApp();
     }

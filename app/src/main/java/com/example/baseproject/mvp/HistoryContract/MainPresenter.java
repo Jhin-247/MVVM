@@ -29,14 +29,14 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void checkPermission(String permission) {
+    public void checkPermission() {
         AppOpsManager appOpsManagerCompat = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
         int mode = appOpsManagerCompat.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), mContext.getPackageName());
         boolean granted = mode == AppOpsManager.MODE_ALLOWED;
-        if (granted){
+        if (granted) {
             mView.onHasPermission();
         } else {
-            mView.requestPermission(permission);
+            mView.requestPermission();
         }
 
     }
@@ -84,8 +84,7 @@ public class MainPresenter implements MainContract.Presenter {
             }
 
             Collections.sort(mAppInfoList, (o1, o2) -> Long.compare(o2.getUsedDuration(), o1.getUsedDuration()));
-            Handler mMainHandler = new Handler(mContext.getMainLooper());
-            mMainHandler.post(() -> mView.onQueryAppComplete(mAppInfoList));
+            mView.onQueryAppComplete(mAppInfoList, mMaxUseDuration);
         });
     }
 
