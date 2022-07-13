@@ -32,7 +32,6 @@ public class HistoryViewModel extends BaseObservable {
     public HistoryViewModel(Context mContext) {
         this.mContext = mContext;
         mAppInfoMutableList = new MutableLiveData<>();
-        initData();
     }
 
     public MutableLiveData<List<AppInfo>> getMutableAppList() {
@@ -52,7 +51,7 @@ public class HistoryViewModel extends BaseObservable {
         }
     }
 
-    private void initData() {
+    public void initData() {
         HandlerThread mHandlerThread = new HandlerThread("getAppInfoThread");
         mHandlerThread.start();
         Handler handler = new Handler(mHandlerThread.getLooper());
@@ -101,7 +100,7 @@ public class HistoryViewModel extends BaseObservable {
     }
 
     public boolean checkPermission() {
-        AppOpsManager appOpsManagerCompat = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
+        AppOpsManager appOpsManagerCompat = (AppOpsManager) mContext.getApplicationContext().getSystemService(Context.APP_OPS_SERVICE);
         int mode = appOpsManagerCompat.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), mContext.getPackageName());
         return mode == AppOpsManager.MODE_ALLOWED;
     }

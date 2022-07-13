@@ -57,6 +57,7 @@ public class HistoryMVVMActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        mViewModel.initData();
         mBinding.rcvAppInfo.setAdapter(mAdapter);
         mBinding.rcvAppInfo.setLayoutManager(new LinearLayoutManager(this));
         mViewModel.getMutableAppList().observe(this, appList -> {

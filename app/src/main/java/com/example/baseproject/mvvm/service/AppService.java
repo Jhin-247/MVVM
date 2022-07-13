@@ -15,7 +15,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
@@ -45,7 +44,7 @@ public class AppService extends Service {
                 @Override
                 public void run() {
                     updateNotification();
-                    mHandler.postDelayed(this, 1000);
+                    mHandler.postDelayed(this, 2000);
                 }
             });
         }
@@ -63,7 +62,7 @@ public class AppService extends Service {
     private void updateNotification() {
         UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         long mCurrentTime = System.currentTimeMillis();
-        long mStartTime = mCurrentTime / 2;
+        long mStartTime = mCurrentTime - 24 * 60 * 60 * 1000;
         List<UsageStats> mUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, mStartTime, mCurrentTime);
         UsageStats mRecentStat = null;
         for (UsageStats usageStats : mUsageStats) {
